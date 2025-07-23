@@ -1,5 +1,8 @@
 pipeline {
   agent any
+  tools {
+    maven 'Maven_3.8.1'  // Must match the name you configured
+  }
 
   stages {
     stage('Build JAR') {
