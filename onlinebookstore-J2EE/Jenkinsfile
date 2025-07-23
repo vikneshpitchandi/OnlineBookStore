@@ -11,6 +11,10 @@ pipeline {
         sh 'pwd'
         sh 'ls -lrt'
         sh 'mvn -f /var/lib/jenkins/workspace/Build_bookstoreJAR/onlinebookstore-J2EE/pom.xml clean package'
+        while kill -0 $! 2>/dev/null; do
+          echo "Still building..."
+          sleep 30
+        done
         archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
       }
     }
