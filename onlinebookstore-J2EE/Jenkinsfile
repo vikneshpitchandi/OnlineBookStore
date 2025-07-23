@@ -1,7 +1,8 @@
 pipeline {
   agent any
+
   tools {
-    maven 'maven_3.9.11'  // Must match the name you configured
+    maven 'maven_3.9.11'
   }
 
   stages {
@@ -10,11 +11,18 @@ pipeline {
         git url: 'https://github.com/vikneshpitchandi/OnlineBookStore.git', branch: 'main'
         sh 'pwd'
         sh 'ls -lrt'
-        sh 'mvn -f /var/lib/jenkins/workspace/Build_bookstoreJAR/onlinebookstore-J2EE/pom.xml clean package'
-        while kill -0 $! 2>/dev/null; do
-          echo "Still building..."
-          sleep 30
-        done
+
+        // Start Maven in the background and echo output every 30s
+        sh '''
+          mvn -f /var/lib/jenkins/workspace/Build_bookstoreJAR/onlinebookstore-J2EE/pom.xml clean package &
+          pid=$!
+          while kill -0 $pid 2>/dev/null; do
+            echo "[INFO] Still building at $(date)"
+            sleep 30
+          done
+          wait $pid
+        '''
+
         archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
       }
     }
